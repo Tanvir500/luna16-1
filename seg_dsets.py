@@ -116,9 +116,7 @@ class Ct:
             start_ndx = int(round(center_val - width_irc[axis] / 2))
             end_ndx = int(start_ndx + width_irc[axis])
 
-            assert (
-                center_val >= 0 and center_val < self.hu_a.shape[axis]
-            ), repr(
+            assert center_val >= 0 and center_val < self.hu_a.shape[axis], repr(
                 [
                     self.series_uid,
                     center_xyz,
@@ -154,7 +152,7 @@ def getCandidateInfoList(requireOnDisk_bool=True):
     # We construct a set with all series_uids that are present on disk.
     # This will let us use the data, even if we haven't downloaded all of
     # the subsets yet.
-    mhd_list = glob.glob("data-unversioned/part2/luna/subset*/*.mhd")
+    mhd_list = glob.glob("data/luna/imgs/*.mhd")
     presentOnDisk_set = {os.path.split(p)[-1][:-4] for p in mhd_list}
 
     candidateInfo_list = []
@@ -267,14 +265,10 @@ class Lund2dSegentationDataset(Dataset):
 
         series_set = set(self.series_list)
         self.candidateInfo_list = [
-            cit
-            for cit in self.candidateInfo_list
-            if cit.series_uid in series_set
+            cit for cit in self.candidateInfo_list if cit.series_uid in series_set
         ]
 
-        self.pos_list = [
-            nt for nt in self.candidateInfo_list if nt.isNodule_bool
-        ]
+        self.pos_list = [nt for nt in self.candidateInfo_list if nt.isNodule_bool]
 
     def __len__(self):
         return len(self.sample_list)
