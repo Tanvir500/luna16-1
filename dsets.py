@@ -84,9 +84,9 @@ def getCandidateInfoDict(requireOnDisk_bool=True):
     candidateInfo_dict = {}
 
     for candidateInfo_tup in candidateInfo_list:
-        candidateInfo_dict.setdefault(candidateInfo_tup.series_uid, []).append(
-            candidateInfo_tup
-        )
+        candidateInfo_dict.setdefault(
+            candidateInfo_tup.series_uid, []
+        ).append(candidateInfo_tup)
 
     return candidateInfo_dict
 

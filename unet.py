@@ -145,7 +145,9 @@ class UNetUpBlock(nn.Module):
                 nn.Conv2d(in_size, out_size, kernel_size=1),
             )
 
-        self.conv_block = UNetConvBlock(in_size, out_size, padding, batch_norm)
+        self.conv_block = UNetConvBlock(
+            in_size, out_size, padding, batch_norm
+        )
 
     def center_crop(self, layer, target_size):
         _, _, layer_height, layer_width = layer.size()

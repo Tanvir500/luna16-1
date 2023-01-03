@@ -116,7 +116,9 @@ class Ct:
             start_ndx = int(round(center_val - width_irc[axis] / 2))
             end_ndx = int(start_ndx + width_irc[axis])
 
-            assert center_val >= 0 and center_val < self.hu_a.shape[axis], repr(
+            assert (
+                center_val >= 0 and center_val < self.hu_a.shape[axis]
+            ), repr(
                 [
                     self.series_uid,
                     center_xyz,
@@ -206,9 +208,9 @@ def getCandidateInfoDict(requireOnDisk_bool=True):
     candidateInfo_dict = {}
 
     for candidateInfo_tup in candidateInfo_list:
-        candidateInfo_dict.setdefault(candidateInfo_tup.series_uid, []).append(
-            candidateInfo_tup
-        )
+        candidateInfo_dict.setdefault(
+            candidateInfo_tup.series_uid, []
+        ).append(candidateInfo_tup)
 
     return candidateInfo_dict
 
@@ -254,7 +256,8 @@ class Lund2dSegentationDataset(Dataset):
 
             if self.fullCt_bool:
                 self.sample_list += [
-                    (series_uid, slice_ndx) for slice_ndx in range(index_count)
+                    (series_uid, slice_ndx)
+                    for slice_ndx in range(index_count)
                 ]
             else:
                 self.sample_list += [
@@ -265,10 +268,14 @@ class Lund2dSegentationDataset(Dataset):
 
         series_set = set(self.series_list)
         self.candidateInfo_list = [
-            cit for cit in self.candidateInfo_list if cit.series_uid in series_set
+            cit
+            for cit in self.candidateInfo_list
+            if cit.series_uid in series_set
         ]
 
-        self.pos_list = [nt for nt in self.candidateInfo_list if nt.isNodule_bool]
+        self.pos_list = [
+            nt for nt in self.candidateInfo_list if nt.isNodule_bool
+        ]
 
     def __len__(self):
         return len(self.sample_list)
@@ -286,7 +293,9 @@ class Lund2dSegentationDataset(Dataset):
         for i, context_ndx in enumerate(range(start_ndx, end_ndx)):
             context_ndx = max(context_ndx, 0)
             context_ndx = min(context_ndx, ct.hu_a.shape[0] - 1)
-            ct_t[i] = torch.from_numpy(ct.hu_a[context_ndx].astype(np.float32))
+            ct_t[i] = torch.from_numpy(
+                ct.hu_a[context_ndx].astype(np.float32)
+            )
         ct_t.clamp_(-1000, 1000)
 
         pos_t = torch.from_numpy(ct.positive_mask[slice_ndx]).unsqueeze(0)

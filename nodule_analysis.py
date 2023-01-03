@@ -66,7 +66,10 @@ def match_and_score(detections, truth, threshold=0.5, threshold_mal=0.5):
     # 2 -> detected as benign nodule (or nodule if no malignancy model is used)
     # 3 -> detected as malignant nodule (if applicable)
     detected_classes = np.array(
-        [1 if d[0] < threshold else (2 if d[1] < threshold else 3) for d in detections]
+        [
+            1 if d[0] < threshold else (2 if d[1] < threshold else 3)
+            for d in detections
+        ]
     )
 
     confusion = np.zeros((3, 4), dtype=np.int32)
@@ -78,7 +81,9 @@ def match_and_score(detections, truth, threshold=0.5, threshold_mal=0.5):
             confusion[0, dc] += 1
     else:
         normalized_dists = (
-            np.linalg.norm(truth_xyz[:, None] - detected_xyz[None], ord=2, axis=-1)
+            np.linalg.norm(
+                truth_xyz[:, None] - detected_xyz[None], ord=2, axis=-1
+            )
             / truth_diams[:, None]
         )
         matches = normalized_dists < 0.7
@@ -229,6 +234,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "series_uid", nargs="?", default=None, help="Series UID to use."
     )
+    parser.add_argument(
+        "--include-train",
+        default=False,
+        action="store_true",
+        help="Include training data",
+    )
     cli_args = parser.parse_args()
     seg_model, cls_model = initModels()
 
@@ -238,7 +249,8 @@ if __name__ == "__main__":
     )
 
     val_set = set(
-        candidateInfo_tup.series_uid for candidateInfo_tup in val_ds.candidateInfo_list
+        candidateInfo_tup.series_uid
+        for candidateInfo_tup in val_ds.candidateInfo_list
     )
     positive_set = set(
         candidateInfo_tup.series_uid
@@ -249,10 +261,14 @@ if __name__ == "__main__":
         series_set = set(cli_args.series_uid.split(","))
     else:
         series_set = set(
-            candidateInfo_tup.series_uid for candidateInfo_tup in getCandidateInfoList()
+            candidateInfo_tup.series_uid
+            for candidateInfo_tup in getCandidateInfoList()
         )
+    if cli_args.include_train:
+        train_list = sorted(series_set - val_set)
+    else:
+        train_list = []
     val_list = sorted(series_set & val_set)
-    train_list = []
     candidateInfo_dict = getCandidateInfoDict()
 
     all_confusion = np.zeros((3, 4), dtype=np.int32)
@@ -277,7 +293,12 @@ if __name__ == "__main__":
 
         if cli_args.series_uid:
             print(f"found nodule candidates in {series_uid}:")
-            for prob, prob_mal, center_xyz, center_irc in classifications_list:
+            for (
+                prob,
+                prob_mal,
+                center_xyz,
+                center_irc,
+            ) in classifications_list:
                 if prob > 0.5:
                     s = f"nodule prob {prob:.3f}, "
                     s += f"center xyz {center_xyz}"
